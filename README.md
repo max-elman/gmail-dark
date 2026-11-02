@@ -1,16 +1,16 @@
 # Gmail Dark
 
-A small Chrome extension that puts Gmail in dark mode. It can follow your Mac's light/dark setting, a schedule, or sunset and sunrise. It makes no network requests: sunrise and sunset are calculated in the browser, and settings are kept in Chrome's synced storage.
+A small Chrome extension that puts Gmail and Google Drive in dark mode. It can follow your Mac's light/dark setting, a schedule, or sunset and sunrise. It makes no network requests: sunrise and sunset are calculated in the browser, and settings are kept in Chrome's synced storage.
 
 ## Install (unpacked)
 
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode** (top right).
 3. Click **Load unpacked** and pick this `gmail-dark` folder.
-4. Reload any open Gmail tabs.
+4. Reload any open Gmail and Drive tabs.
 5. Pin it from the puzzle-piece menu to reach the settings.
 
-After editing a file, click the reload arrow on the extension's card, then reload Gmail.
+After editing a file, click the reload arrow on the extension's card, then reload Gmail and Drive.
 
 ### On another computer
 
@@ -25,7 +25,7 @@ The `key` in `manifest.json` gives the extension the same ID (`agmgabijcnpddgdoa
 - **On/off switch** at the top.
 - **When to go dark:** Match my Mac, Always dark, Always light, On a schedule (to the minute, works across midnight), or Sunset to sunrise ("Use my location", or type latitude and longitude). Without a location, sunset mode uses the schedule hours.
 - **Softness:** lowers contrast slightly so the background is a very dark gray instead of pure black. Photos get the same small contrast drop.
-- **On this account** (shows when the popup is opened on a Gmail tab): hide the empty Workspace logo box next to your picture, and hide Streak's top-bar button. These are saved per Gmail account and apply in light and dark mode. Hiding Streak only hides its button; the Streak extension still runs.
+- **On this account** (shows when the popup is opened on a Gmail or Drive tab): hide the empty Workspace logo box next to your picture, and (in Gmail) hide Streak's top-bar button. These are saved per Google account and apply in light and dark mode. Hiding the logo box covers Gmail and Drive together. Hiding Streak only hides its button; the Streak extension still runs.
 - **Shortcut:** ⌥⇧D (Option+Shift+D) switches between dark and light. Change it at `chrome://extensions/shortcuts`.
 
 ## How it works
@@ -36,13 +36,14 @@ The `key` in `manifest.json` gives the extension the same ID (`agmgabijcnpddgdoa
 - Per-account hiding: `content.js` reads the account from the avatar's label, tags the logo box beside the avatar (`data-gdm-hide`) and Streak's top-bar button (`data-gdm-hide-streak`, found by its InboxSDK class or "Streak" label), and `dark.css` hides them.
 - All of this is rechecked every 5 seconds while dark, since Gmail redraws the list and rails as you move around.
 - `content.js` runs before Gmail draws, decides light or dark with `theme.js`, sets that attribute, and checks again every minute, when you return to the tab, when your Mac's setting changes, and when you change a setting.
-- `background.js` only passes the keyboard shortcut to the Gmail tab.
+- Drive gets the same page inversion and logo-box hiding. The Gmail-only fixes (photo themes, light top bar, label chips, Streak) are skipped there, so a full-window file preview isn't mistaken for a photo theme.
+- `background.js` only passes the keyboard shortcut to the Gmail or Drive tab.
 - `popup.*` is the settings panel.
 
 ## Known limits
 
 - Colors in HTML emails are inverted, not redesigned, so branded newsletters can look off.
-- If Gmail's own dark theme is turned on, this flips it back to light. Use Gmail's default (light) theme with it.
+- If Gmail's or Drive's own dark theme is turned on, this flips it back to light. Use their default (light) theme with it.
 - "Use my location" needs Location Services turned on for Chrome in macOS System Settings → Privacy & Security.
 
 ## License

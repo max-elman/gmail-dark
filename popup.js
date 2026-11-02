@@ -33,7 +33,7 @@ function render(prefs) {
   $('hideStreak').checked = !!mine.streak;
 
   const dark = gdmShouldBeDark(prefs, new Date(), systemQuery.matches);
-  $('status').textContent = `Gmail is ${dark ? 'dark' : 'light'} now`;
+  $('status').textContent = `Gmail and Drive are ${dark ? 'dark' : 'light'} now`;
 }
 
 async function save(changes) {
@@ -83,7 +83,7 @@ $('locate').addEventListener('click', () => {
   );
 });
 
-// Hiding is per Gmail account, so ask the open Gmail tab which one it is.
+// Hiding is per Google account, so ask the open Gmail or Drive tab which one it is.
 let account = null;
 let lastPrefs = null;
 
@@ -96,10 +96,11 @@ async function findAccount() {
     account = answer;
     $('accountEmail').textContent = account.email;
     $('hideLogoRow').hidden = !account.workspace;
+    $('hideStreakRow').hidden = !account.gmail;
     $('account').hidden = false;
     if (lastPrefs) render(lastPrefs);
   } catch {
-    // Not a Gmail tab (no content script to answer).
+    // Not a Gmail or Drive tab (no content script to answer).
   }
 }
 

@@ -1,7 +1,11 @@
-// Runs on Gmail at document_start, so the theme is set before the page paints.
+// Runs on Gmail and Drive at document_start, so the theme is set before the
+// page paints.
 
 (() => {
   const root = document.documentElement;
+  // Drive shares Gmail's top bar (avatar, logo box) but has no photo themes,
+  // label chips or Streak, so those fixes only run on Gmail.
+  const onGmail = location.hostname === 'mail.google.com';
   const systemQuery = matchMedia('(prefers-color-scheme: dark)');
   let prefs = { ...GDM_DEFAULTS };
 
@@ -258,10 +262,12 @@
   function markHidden() {
     const mine = prefs.hide?.[accountEmail()] || {};
     markLogoBox(!!mine.logo);
-    markStreak(!!mine.streak);
+    if (onGmail) markStreak(!!mine.streak);
   }
 
   function fixPage() {
+    // On Drive a full-window image is a file preview, not a theme, so it stays.
+    if (!onGmail) return;
     markBackdrops();
     markLightFrame();
     markLabelColors();
@@ -307,7 +313,11 @@
   chrome.runtime.onMessage.addListener((message, sender, reply) => {
     // The popup asks which account this tab is, to show its hiding switches.
     if (message.type === 'account') {
-      reply({ email: accountEmail(), workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()) });
+      reply({
+        email: accountEmail(),
+        workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()),
+        gmail: onGmail,
+      });
       return;
     }
     if (message.type !== 'toggle') return;
