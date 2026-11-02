@@ -14,7 +14,7 @@ After editing a file, click the reload arrow on the extension's card, then reloa
 
 ### On another computer
 
-1. `git clone git@github.com:max-elman/gmail-dark.git ~/Developer/gmail-dark`
+1. `gh repo clone max-elman/gmail-dark ~/Developer/gmail-dark` (or `git clone https://github.com/max-elman/gmail-dark.git ~/Developer/gmail-dark`)
 2. Load that folder unpacked as above.
 3. To update later: `git -C ~/Developer/gmail-dark pull`, then click the reload arrow on the extension's card.
 
