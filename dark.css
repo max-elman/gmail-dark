@@ -1,0 +1,95 @@
+/* Gmail Dark: invert the page, then invert media back so photos look right.
+ * Inverting turns white into black; rotating the hue 180° brings colors back
+ * to roughly their original hue. --gdm-softness lowers the contrast a little
+ * so the background is very dark gray rather than pure black. */
+
+html[data-gdm-theme="dark"] {
+  background: #fff !important;
+}
+
+html[data-gdm-theme="dark"] body {
+  background-color: #fff !important;
+  filter: invert(1) hue-rotate(180deg) contrast(var(--gdm-softness, 0.9)) !important;
+}
+
+html[data-gdm-theme="dark"] body img,
+html[data-gdm-theme="dark"] body video,
+html[data-gdm-theme="dark"] body canvas,
+html[data-gdm-theme="dark"] body picture,
+html[data-gdm-theme="dark"] body svg image {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* Gmail photo themes (tagged by content.js): at night the photo becomes plain
+ * light gray, which the page inversion turns into Gmail-style dark gray. */
+html[data-gdm-theme="dark"] body [data-gdm-backdrop] {
+  filter: brightness(0) invert(0.88) !important;
+}
+
+/* Over a photo theme Gmail draws the top bar, sidebar and rail icons light.
+ * The page inversion would make them dark on dark (and the open sidebar a
+ * light gray panel), so flip those back. content.js sets data-gdm-light-frame
+ * when the top bar text is light and tags the parts; data-gdm-unflip marks
+ * solid light buttons in the sidebar (Compose) that should stay dark. */
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner],
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-nav],
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-icon],
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-unflip] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* The open sidebar (tagged by content.js): solid dark gray instead of Gmail's
+ * see-through panel. Inside the flipped sidebar this color shows as written. */
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-nav] [data-gdm-panel],
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-nav][data-gdm-panel] {
+  background-color: #2b2b2b !important;
+}
+
+/* Label chips (tagged by content.js) keep the colors you picked. */
+html[data-gdm-theme="dark"] body [data-gdm-keep] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* Gmail's search box over a photo is a see-through light layer, which turns
+ * into a heavy gray slab on plain dark gray. Make it a faint lift instead.
+ * Left alone while typing, when Gmail switches to its own focused style. */
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner] form[role="search"]:not(:focus-within) {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* While searching, Gmail turns the search box and its suggestions solid white.
+ * Flip it once more so it's dark like the rest; its pictures flip back. */
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner] form[role="search"]:focus-within {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner] form[role="search"]:focus-within img,
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner] [data-gdm-unflip] img {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* Images in the flipped top bar and sidebar (logo, avatar) are already back to normal. */
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-banner] img,
+html[data-gdm-theme="dark"][data-gdm-light-frame] body [data-gdm-nav] img {
+  filter: none !important;
+}
+
+/* Don't double-flip images nested inside pictures. */
+html[data-gdm-theme="dark"] body picture img {
+  filter: none !important;
+}
+
+/* Hidden per account from the popup (tagged by content.js), light or dark:
+ * the empty Workspace logo box next to the avatar, and Streak's top-bar button. */
+html body [data-gdm-hide],
+html body [data-gdm-hide-streak] {
+  display: none !important;
+}
+
+/* With the logo hidden, drop the pill outline around the avatar too. */
+html body [data-gdm-pill] {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+}

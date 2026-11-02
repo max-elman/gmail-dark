@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gmail Dark</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Gmail Dark</h1>
+    <label class="switch" title="Turn dark mode on or off">
+      <input type="checkbox" id="enabled">
+      <span></span>
+    </label>
+  </header>
+
+  <fieldset id="modes">
+    <legend>When to go dark</legend>
+    <label><input type="radio" name="mode" value="system"> Match my Mac</label>
+    <label><input type="radio" name="mode" value="dark"> Always dark</label>
+    <label><input type="radio" name="mode" value="light"> Always light</label>
+    <label><input type="radio" name="mode" value="schedule"> On a schedule</label>
+    <label><input type="radio" name="mode" value="sun"> Sunset to sunrise</label>
+  </fieldset>
+
+  <section id="schedule" hidden>
+    <label>Dark from <input type="time" id="darkFrom"></label>
+    <label>until <input type="time" id="darkUntil"></label>
+  </section>
+
+  <section id="sun" hidden>
+    <div class="row">
+      <button type="button" id="locate">Use my location</button>
+      <span id="locateStatus" class="muted"></span>
+    </div>
+    <div class="row">
+      <label>Lat <input type="number" id="lat" step="0.01" min="-90" max="90"></label>
+      <label>Lng <input type="number" id="lng" step="0.01" min="-180" max="180"></label>
+    </div>
+    <p id="sunTimes" class="muted"></p>
+  </section>
+
+  <section>
+    <label class="slider">Softness
+      <input type="range" id="softness" min="0.7" max="1" step="0.01">
+    </label>
+    <p class="muted">Right is pure black. Left is softer gray.</p>
+  </section>
+
+  <section id="account" hidden>
+    <p class="muted">On <strong id="accountEmail"></strong></p>
+    <label class="check" id="hideLogoRow"><input type="checkbox" id="hideLogo"> Hide the empty logo box by my picture</label>
+    <label class="check"><input type="checkbox" id="hideStreak"> Hide Streak in the top bar</label>
+  </section>
+
+  <footer>
+    <span id="status"></span>
+    <a href="#" id="shortcuts">Shortcut: <kbd id="shortcutKey">⌥⇧D</kbd></a>
+  </footer>
+
+  <script src="theme.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
