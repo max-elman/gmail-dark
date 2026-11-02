@@ -44,3 +44,7 @@ The `key` in `manifest.json` gives the extension the same ID (`agmgabijcnpddgdoa
 - Colors in HTML emails are inverted, not redesigned, so branded newsletters can look off.
 - If Gmail's own dark theme is turned on, this flips it back to light. Use Gmail's default (light) theme with it.
 - "Use my location" needs Location Services turned on for Chrome in macOS System Settings → Privacy & Security.
+
+## License
+
+MIT. See `LICENSE`.
