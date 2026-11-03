@@ -15,7 +15,9 @@
     {
       "matches": [
         "https://mail.google.com/*",
-        "https://calendar.google.com/*"
+        "https://calendar.google.com/*",
+        "https://drive.google.com/*",
+        "https://docs.google.com/*"
       ],
       "css": [
         "dark.css"

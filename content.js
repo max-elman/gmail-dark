@@ -1,10 +1,10 @@
 // Runs on Gmail at document_start, so the theme is set before the page paints.
-// Also runs on Google Calendar, which has its own dark mode: there it only
-// hides the logo box by the avatar.
+// Also runs on Google Calendar, Drive and Docs, which have their own dark mode:
+// there it only hides the logo box by the avatar.
 
 (() => {
   const root = document.documentElement;
-  const onCalendar = location.hostname === 'calendar.google.com';
+  const hideOnly = location.hostname !== 'mail.google.com';
   const systemQuery = matchMedia('(prefers-color-scheme: dark)');
   let prefs = { ...GDM_DEFAULTS };
 
@@ -177,7 +177,7 @@
   // (me@example.com)"). Hiding choices in the popup are kept per account.
   function avatarLink() {
     return document.querySelector('header[role="banner"] a[aria-label^="Google Account"]') ||
-      (onCalendar ? document.querySelector('a[aria-label^="Google Account"]') : null);
+      (hideOnly ? document.querySelector('a[aria-label^="Google Account"]') : null);
   }
 
   function accountEmail() {
@@ -262,7 +262,7 @@
   function markHidden() {
     const mine = prefs.hide?.[accountEmail()] || {};
     markLogoBox(!!mine.logo);
-    if (!onCalendar) markStreak(!!mine.streak);
+    if (!hideOnly) markStreak(!!mine.streak);
   }
 
   function fixPage() {
@@ -272,7 +272,7 @@
   }
 
   function apply() {
-    if (onCalendar) {
+    if (hideOnly) {
       markHidden();
       return;
     }
@@ -318,11 +318,11 @@
       reply({
         email: accountEmail(),
         workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()),
-        calendar: onCalendar,
+        hideOnly,
       });
       return;
     }
-    if (message.type !== 'toggle' || onCalendar) return;
+    if (message.type !== 'toggle' || hideOnly) return;
     const isDark = root.getAttribute('data-gdm-theme') === 'dark';
     gdmSavePrefs({ enabled: true, mode: isDark ? 'light' : 'dark' });
   });
