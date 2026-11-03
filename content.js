@@ -1,6 +1,6 @@
 // Runs on Gmail at document_start, so the theme is set before the page paints.
-// Also runs on Google Calendar, Drive and Docs, which have their own dark mode:
-// there it only hides the logo box by the avatar.
+// Also runs on the other Google apps (Calendar, Drive, Docs, Meet...), which
+// have their own dark mode: there it only hides the logo box by the avatar.
 
 (() => {
   const root = document.documentElement;
