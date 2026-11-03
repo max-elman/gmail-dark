@@ -1,7 +1,10 @@
 // Runs on Gmail at document_start, so the theme is set before the page paints.
+// Also runs on Google Calendar, which has its own dark mode: there it only
+// hides the logo box by the avatar.
 
 (() => {
   const root = document.documentElement;
+  const onCalendar = location.hostname === 'calendar.google.com';
   const systemQuery = matchMedia('(prefers-color-scheme: dark)');
   let prefs = { ...GDM_DEFAULTS };
 
@@ -173,7 +176,8 @@
   // The signed-in account, from the avatar link's label ("Google Account: Name
   // (me@example.com)"). Hiding choices in the popup are kept per account.
   function avatarLink() {
-    return document.querySelector('header[role="banner"] a[aria-label^="Google Account"]');
+    return document.querySelector('header[role="banner"] a[aria-label^="Google Account"]') ||
+      (onCalendar ? document.querySelector('a[aria-label^="Google Account"]') : null);
   }
 
   function accountEmail() {
@@ -189,7 +193,7 @@
     if (!avatar) return;
     // The outlined pill around the logo and avatar (Workspace accounts only).
     let outline = null;
-    for (let p = avatar.parentElement, i = 0; p && i < 6 && p.getAttribute('role') !== 'banner'; p = p.parentElement, i++) {
+    for (let p = avatar.parentElement, i = 0; p && p !== document.body && i < 6 && p.getAttribute('role') !== 'banner'; p = p.parentElement, i++) {
       const style = getComputedStyle(p);
       if (parseFloat(style.borderTopWidth) > 0 || style.boxShadow !== 'none') {
         outline = p;
@@ -258,7 +262,7 @@
   function markHidden() {
     const mine = prefs.hide?.[accountEmail()] || {};
     markLogoBox(!!mine.logo);
-    markStreak(!!mine.streak);
+    if (!onCalendar) markStreak(!!mine.streak);
   }
 
   function fixPage() {
@@ -268,6 +272,10 @@
   }
 
   function apply() {
+    if (onCalendar) {
+      markHidden();
+      return;
+    }
     const dark = gdmShouldBeDark(prefs, new Date(), systemQuery.matches);
     root.setAttribute('data-gdm-theme', dark ? 'dark' : 'light');
     root.style.setProperty('--gdm-softness', String(prefs.softness));
@@ -307,10 +315,14 @@
   chrome.runtime.onMessage.addListener((message, sender, reply) => {
     // The popup asks which account this tab is, to show its hiding switches.
     if (message.type === 'account') {
-      reply({ email: accountEmail(), workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()) });
+      reply({
+        email: accountEmail(),
+        workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()),
+        calendar: onCalendar,
+      });
       return;
     }
-    if (message.type !== 'toggle') return;
+    if (message.type !== 'toggle' || onCalendar) return;
     const isDark = root.getAttribute('data-gdm-theme') === 'dark';
     gdmSavePrefs({ enabled: true, mode: isDark ? 'light' : 'dark' });
   });

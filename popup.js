@@ -96,6 +96,7 @@ async function findAccount() {
     account = answer;
     $('accountEmail').textContent = account.email;
     $('hideLogoRow').hidden = !account.workspace;
+    $('hideStreakRow').hidden = !!account.calendar;
     $('account').hidden = false;
     if (lastPrefs) render(lastPrefs);
   } catch {
