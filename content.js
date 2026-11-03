@@ -1,10 +1,13 @@
-// Runs on Gmail at document_start, so the theme is set before the page paints.
-// Also runs on the other Google apps (Calendar, Drive, Docs, Meet...), which
-// have their own dark mode: there it only hides the logo box by the avatar.
+// Runs on Gmail and Drive at document_start, so the theme is set before the
+// page paints. Also runs on the other Google apps (Calendar, Docs, Meet...),
+// which have their own dark mode: there it only hides the logo box by the avatar.
 
 (() => {
   const root = document.documentElement;
-  const hideOnly = location.hostname !== 'mail.google.com';
+  // Drive shares Gmail's top bar (avatar, logo box) but has no photo themes,
+  // label chips or Streak, so those fixes only run on Gmail.
+  const onGmail = location.hostname === 'mail.google.com';
+  const hideOnly = !onGmail && location.hostname !== 'drive.google.com';
   const systemQuery = matchMedia('(prefers-color-scheme: dark)');
   let prefs = { ...GDM_DEFAULTS };
 
@@ -262,10 +265,12 @@
   function markHidden() {
     const mine = prefs.hide?.[accountEmail()] || {};
     markLogoBox(!!mine.logo);
-    if (!hideOnly) markStreak(!!mine.streak);
+    if (onGmail) markStreak(!!mine.streak);
   }
 
   function fixPage() {
+    // On Drive a full-window image is a file preview, not a theme, so it stays.
+    if (!onGmail) return;
     markBackdrops();
     markLightFrame();
     markLabelColors();
@@ -318,7 +323,7 @@
       reply({
         email: accountEmail(),
         workspace: !!avatarLink() && !/@gmail\.com$/.test(accountEmail()),
-        hideOnly,
+        gmail: onGmail,
       });
       return;
     }
