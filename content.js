@@ -206,9 +206,12 @@
     let pill = outline || avatar.parentElement;
     for (let i = 0; !outline && pill && i < 3 && pill.childElementCount < 2; i++) pill = pill.parentElement;
     if (!pill) return;
+    // The real pill holds only the logo and the avatar. Anything much wider is
+    // a toolbar (Docs, Sheets), so hide nothing there.
+    const tooWide = pill.getBoundingClientRect().width > 260;
 
     const hide = new Set();
-    for (const el of pill.querySelectorAll('*')) {
+    for (const el of tooWide ? [] : pill.querySelectorAll('*')) {
       if (el === avatar || avatar.contains(el) || el.contains(avatar) || !isLogo(el)) continue;
       // Take the logo's own wrappers too, so no empty space is left behind.
       let box = el;
@@ -221,6 +224,11 @@
   }
 
   function isLogo(el) {
+    // The logo box has no text. Buttons beside the avatar do (Sheets' and
+    // Docs' light blue "Share" button looked like a blank logo box and was
+    // hidden), so anything with text is never the logo. This comes first so
+    // an element hidden by mistake earlier is shown again.
+    if (el.textContent.trim()) return false;
     if (el.hasAttribute('data-gdm-hide')) return true; // hidden, so it measures 0
     if (el.parentElement?.closest('[data-gdm-hide]')) return false;
     if (el.querySelector('[data-gdm-hide]')) return false;
