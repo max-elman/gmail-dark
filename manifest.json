@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gmail Dark",
   "description": "Dark mode for Gmail and Google Drive: follows your Mac's setting, a schedule, or sunset. Nothing leaves your browser.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApcObrlry072aZJZhKIl1aVd4FnCHz438GgamZ9kL5whFp/mOpwUtY/udTPhJUcywavLcvrJV8Lp/kKuOF2+aTOXiT+CNUq8ZWUC2ENjW+lNdi3OskESGM0/hGqwr2TFHmGRM0qFoGCnEcCs57PHXXwFMKpKF12UEBvi00KWV5Rjb+2Z6XwxscJswaHwGnL7kNFFv//X/JGTNLVS0Tu5gz9l6EJzFau3D9+dnY0p/JKtoUZlQ9ycByjezf+81GIQs9VF9D29kF5eDV18lLmq0w5nHM/lYxrN/4CKxKPMUn8DZibxLhLfIRd67kMrIcPwpkdIV3P+tXoXkxe0M5Rs3LwIDAQAB",
   "permissions": [
     "storage",

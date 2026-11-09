@@ -11,6 +11,37 @@
   const systemQuery = matchMedia('(prefers-color-scheme: dark)');
   let prefs = { ...GDM_DEFAULTS };
 
+  // Light photo themes get Gmail's dark-text logo, which stays dark on the
+  // dark top bar. In dark mode swap in Gmail's own white-text logo (the one it
+  // uses on dark themes), and put the original back in light mode.
+  function swapLogo(dark) {
+    for (const img of document.querySelectorAll('header[role="banner"] img[src*="logo_gmail_lockup_"]')) {
+      if (dark && img.src.includes('lockup_default')) {
+        img.dataset.gdmLogo = img.src;
+        img.dataset.gdmLogoSet = img.srcset;
+        img.srcset = img.srcset.replaceAll('lockup_default', 'lockup_dark');
+        img.src = img.src.replace('lockup_default', 'lockup_dark');
+      } else if (!dark && img.dataset.gdmLogo) {
+        img.srcset = img.dataset.gdmLogoSet || '';
+        img.src = img.dataset.gdmLogo;
+        delete img.dataset.gdmLogo;
+        delete img.dataset.gdmLogoSet;
+      }
+    }
+  }
+
+  // Some photo themes give read rows a dark tint meant for the photo. On the
+  // plain gray that replaces it at night that shows as pale stripes in the
+  // list, so tag those rows and dark.css lightens the tint.
+  function markRowTints() {
+    const themed = root.hasAttribute('data-gdm-light-frame');
+    for (const row of document.querySelectorAll('[role="main"] tr[role="row"]')) {
+      row.removeAttribute('data-gdm-row'); // read Gmail's own color
+      const { r, g, b, a } = rgba(getComputedStyle(row).backgroundColor);
+      row.toggleAttribute('data-gdm-row', themed && r + g + b === 0 && a > 0.04 && a < 0.2);
+    }
+  }
+
   // A Gmail photo theme is a big image behind everything. Re-inverted like any
   // other photo it stays bright, so tag it and dark.css replaces it at night.
   function isBackdrop(el) {
@@ -86,6 +117,14 @@
       for (const el of rail.querySelectorAll('*')) {
         el.toggleAttribute('data-gdm-icon', light && isRailIcon(el, rail));
       }
+    }
+
+    // The side panel's own buttons (Hide/Show side panel, About) are white
+    // drawn icons over a photo theme, which the inversion makes dark on dark.
+    for (const svg of document.querySelectorAll('[aria-label$="side panel" i] svg, [aria-label="Side panel"] svg')) {
+      if (svg.parentElement?.closest('[data-gdm-icon]')) continue;
+      svg.removeAttribute('data-gdm-icon'); // read Gmail's own color
+      svg.toggleAttribute('data-gdm-icon', light && isLight(getComputedStyle(svg).fill));
     }
   }
 
@@ -173,6 +212,9 @@
     if (a < 0.5) return false;
     const hi = Math.max(red, g, b);
     const lo = Math.min(red, g, b);
+    // Light grays (Gmail's default label color) would stay bright pills on the
+    // dark list, so let those turn dark like the rest. Colored and dark labels keep their color.
+    if (hi - lo < 16 && lo > 150) return false;
     return !(lo > 235 || hi < 20);
   }
 
@@ -270,10 +312,40 @@
     return !el.querySelector('a[aria-label^="Google Account"], form[role="search"]');
   }
 
+  // Gmail's Studio, Ask Gemini and Support buttons in the top bar. Tag the button's own
+  // wrappers too (anything up to one button's size), so no gap or stray icon
+  // is left behind; Gemini's sparkle sits beside the button, not inside it.
+  function markTopButton(attr, label, on) {
+    const banner = document.querySelector('header[role="banner"]');
+    if (!banner) return;
+    banner.querySelectorAll(`[${attr}]`).forEach((el) => el.removeAttribute(attr));
+    if (!on) return;
+    for (const hit of banner.querySelectorAll(`[aria-label="${label}"]`)) {
+      let box = hit;
+      while (box.parentElement && box.parentElement !== banner && isButtonSized(box.parentElement)) {
+        box = box.parentElement;
+      }
+      box.setAttribute(attr, '');
+    }
+  }
+
+  function isButtonSized(el) {
+    const hidden = '[data-gdm-hide-studio], [data-gdm-hide-gemini], [data-gdm-hide-support]';
+    if (el.matches(hidden)) return true; // hidden, so it measures 0
+    if (el.querySelector(hidden)) return false;
+    const r = el.getBoundingClientRect();
+    return r.width <= 64 && r.height <= 64;
+  }
+
   function markHidden() {
     const mine = prefs.hide?.[accountEmail()] || {};
     markLogoBox(!!mine.logo);
-    if (onGmail) markStreak(!!mine.streak);
+    if (onGmail) {
+      markStreak(!!mine.streak);
+      markTopButton('data-gdm-hide-studio', 'Studio', !!mine.studio);
+      markTopButton('data-gdm-hide-gemini', 'Ask Gemini', !!mine.gemini);
+      markTopButton('data-gdm-hide-support', 'Support', !!mine.support);
+    }
   }
 
   function fixPage() {
@@ -281,6 +353,8 @@
     if (!onGmail) return;
     markBackdrops();
     markLightFrame();
+    markRowTints();
+    swapLogo(true);
     markLabelColors();
   }
 
@@ -292,7 +366,16 @@
     const dark = gdmShouldBeDark(prefs, new Date(), systemQuery.matches);
     root.setAttribute('data-gdm-theme', dark ? 'dark' : 'light');
     root.style.setProperty('--gdm-softness', String(prefs.softness));
+    // Lowering contrast lifts black to gray but also dims white text; brighten
+    // back so text stays near white (white ends at 97%).
+    root.style.setProperty('--gdm-lift', String(0.97 / (0.5 + 0.5 * prefs.softness)));
+    // The gray that replaces a photo theme, picked so the frame always ends up
+    // about #222 (what Gmail's photo themes looked like in dark) at any softness.
+    const lift = 0.97 / (0.5 + 0.5 * prefs.softness);
+    const flipped = (0.135 / lift - 0.5) / prefs.softness + 0.5;
+    root.style.setProperty('--gdm-backdrop', String(Math.min(1, Math.max(0.8, 1 - flipped)).toFixed(3)));
     if (dark) fixPage();
+    if (onGmail) swapLogo(dark);
     markHidden();
   }
 

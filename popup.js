@@ -31,6 +31,9 @@ function render(prefs) {
   const mine = prefs.hide?.[account?.email] || {};
   $('hideLogo').checked = !!mine.logo;
   $('hideStreak').checked = !!mine.streak;
+  $('hideStudio').checked = !!mine.studio;
+  $('hideGemini').checked = !!mine.gemini;
+  $('hideSupport').checked = !!mine.support;
 
   const dark = gdmShouldBeDark(prefs, new Date(), systemQuery.matches);
   $('status').textContent = `Gmail and Drive are ${dark ? 'dark' : 'light'} now`;
@@ -97,6 +100,9 @@ async function findAccount() {
     $('accountEmail').textContent = account.email;
     $('hideLogoRow').hidden = !account.workspace;
     $('hideStreakRow').hidden = !account.gmail;
+    $('hideStudioRow').hidden = !account.gmail;
+    $('hideGeminiRow').hidden = !account.gmail;
+    $('hideSupportRow').hidden = !account.gmail;
     $('account').hidden = false;
     if (lastPrefs) render(lastPrefs);
   } catch {
@@ -109,13 +115,16 @@ async function saveHide(key, value) {
   const prefs = await gdmLoadPrefs();
   const hide = { ...(prefs.hide || {}) };
   const mine = { ...(hide[account.email] || {}), [key]: value };
-  if (!mine.logo && !mine.streak) delete hide[account.email];
+  if (!Object.values(mine).some(Boolean)) delete hide[account.email];
   else hide[account.email] = mine;
   save({ hide });
 }
 
 $('hideLogo').addEventListener('change', (e) => saveHide('logo', e.target.checked));
 $('hideStreak').addEventListener('change', (e) => saveHide('streak', e.target.checked));
+$('hideStudio').addEventListener('change', (e) => saveHide('studio', e.target.checked));
+$('hideGemini').addEventListener('change', (e) => saveHide('gemini', e.target.checked));
+$('hideSupport').addEventListener('change', (e) => saveHide('support', e.target.checked));
 
 $('shortcuts').addEventListener('click', (e) => {
   e.preventDefault();

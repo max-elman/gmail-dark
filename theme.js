@@ -8,13 +8,21 @@ const GDM_DEFAULTS = {
   darkUntil: '07:00',
   lat: null,
   lng: null,
-  softness: 0.9, // contrast applied on top of the inversion; 1 = pure black/white
+  softness: 0.78, // contrast applied on top of the inversion; 1 = pure black/white, 0.78 ≈ Gmail's own #1f1f1f
   hide: {}, // per Gmail account: { 'me@example.com': { logo: true, streak: true } }
 };
 
 async function gdmLoadPrefs() {
   const { prefs } = await chrome.storage.sync.get('prefs');
-  return { ...GDM_DEFAULTS, ...(prefs || {}) };
+  const merged = { ...GDM_DEFAULTS, ...(prefs || {}) };
+  // 1.2: the default went from near-black to gray. Move the old saved default
+  // (0.9 or darker) over once; anything picked later on the slider is kept.
+  if (prefs && !prefs.grayDefault) {
+    if (merged.softness >= 0.9) merged.softness = GDM_DEFAULTS.softness;
+    merged.grayDefault = true;
+    await chrome.storage.sync.set({ prefs: merged });
+  }
+  return merged;
 }
 
 async function gdmSavePrefs(changes) {

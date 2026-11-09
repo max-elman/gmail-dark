@@ -1,7 +1,8 @@
 /* Gmail Dark: invert the page, then invert media back so photos look right.
  * Inverting turns white into black; rotating the hue 180° brings colors back
  * to roughly their original hue. --gdm-softness lowers the contrast a little
- * so the background is very dark gray rather than pure black. */
+ * so the background is dark gray rather than pure black, and --gdm-lift
+ * brightens it back so text stays near white. */
 
 html[data-gdm-theme="dark"] {
   background: #fff !important;
@@ -9,7 +10,7 @@ html[data-gdm-theme="dark"] {
 
 html[data-gdm-theme="dark"] body {
   background-color: #fff !important;
-  filter: invert(1) hue-rotate(180deg) contrast(var(--gdm-softness, 0.9)) !important;
+  filter: invert(1) hue-rotate(180deg) contrast(var(--gdm-softness, 0.78)) brightness(var(--gdm-lift, 1.09)) !important;
 }
 
 html[data-gdm-theme="dark"] body img,
@@ -21,9 +22,17 @@ html[data-gdm-theme="dark"] body svg image {
 }
 
 /* Gmail photo themes (tagged by content.js): at night the photo becomes plain
- * light gray, which the page inversion turns into Gmail-style dark gray. */
+ * light gray, which the page inversion turns into Gmail-style dark gray.
+ * content.js sets --gdm-backdrop so the result is the same gray at any
+ * softness and on every account. */
 html[data-gdm-theme="dark"] body [data-gdm-backdrop] {
-  filter: brightness(0) invert(0.88) !important;
+  filter: brightness(0) invert(var(--gdm-backdrop, 0.98)) !important;
+}
+
+/* Read rows tinted for a photo theme (tagged by content.js): a much lighter
+ * tint, so the list doesn't stripe on the plain gray. */
+html[data-gdm-theme="dark"] body [data-gdm-row] {
+  background-color: rgba(0, 0, 0, 0.025) !important;
 }
 
 /* Over a photo theme Gmail draws the top bar, sidebar and rail icons light.
@@ -79,9 +88,13 @@ html[data-gdm-theme="dark"] body picture img {
 }
 
 /* Hidden per account from the popup (tagged by content.js), light or dark:
- * the empty Workspace logo box next to the avatar, and Streak's top-bar button. */
+ * the empty Workspace logo box next to the avatar, Streak's top-bar button,
+ * and Gmail's Studio, Ask Gemini and Support buttons. */
 html body [data-gdm-hide],
-html body [data-gdm-hide-streak] {
+html body [data-gdm-hide-streak],
+html body [data-gdm-hide-studio],
+html body [data-gdm-hide-gemini],
+html body [data-gdm-hide-support] {
   display: none !important;
 }
 
