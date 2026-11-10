@@ -14,9 +14,9 @@ After editing a file, click the reload arrow on the extension's card, then reloa
 
 ### On another computer
 
-1. `gh repo clone max-elman/gmail-dark ~/Developer/gmail-dark` (or `git clone https://github.com/max-elman/gmail-dark.git ~/Developer/gmail-dark`)
+1. `gh repo clone max-elman/gmail-dark ~/Developer/personal/gmail-dark` (or `git clone https://github.com/max-elman/gmail-dark.git ~/Developer/personal/gmail-dark`)
 2. Load that folder unpacked as above.
-3. To update later: `git -C ~/Developer/gmail-dark pull`, then click the reload arrow on the extension's card.
+3. To update later: `git -C ~/Developer/personal/gmail-dark pull`, then click the reload arrow on the extension's card.
 
 The `key` in `manifest.json` gives the extension the same ID (`agmgabijcnpddgdoaekjhkejbhoklfgk`) on every computer, so your settings follow you through Chrome sync. Don't remove it. Its private half is `~/.gmail-dark-extension-key.pem` on the MacBook and is only needed to pack the extension as a `.crx` or upload it to the Chrome Web Store.
 
